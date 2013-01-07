@@ -3,7 +3,9 @@ enchant();
 window.onload = function(){
   var game = new Game(320,240);
   game.fps = 30;
-  game.preload("image/sky.png","image/sky2.png","image/skate.png","image/monster3.gif","image/icon0.png","image/effect0.png","image/ground.png");
+  game.preload("image/sky.png","image/sky2.png","image/skate.png","image/monster3.gif","image/icon0.png","image/effect0.png","image/ground.png",
+                "image/bench.png","image/skate_back.png");
+  //スペースキーをAボタンに登録
   game.keybind(32,"a");  
 
   
@@ -94,6 +96,21 @@ window.onload = function(){
     
     game.rootScene.addChild(star);
 
+
+    //ベンチ
+    var bench = new Sprite(150,50);
+    bench.image = game.assets["image/bench.png"];
+    bench.x = game.width*2;
+    bench.y = game.height-70;
+    bench.status = false;
+    
+    game.rootScene.addChild(bench);
+
+    var bench_top = new Sprite(150,20);
+    bench_top.x = game.width*2;
+    bench_top.y = game.height-70;
+    game.rootScene.addChild(bench_top);
+
      // サウンドを読み込み
     var BGM1 = Sound.load("sound/shell_the_enemy.mp3");
     
@@ -104,6 +121,9 @@ window.onload = function(){
       }
       //右キー
       if(game.input.right&&(this.x<game.width-32)){
+        if(bear.status==true){
+        bear.image = game.assets["image/skate.png"];
+        }
         if(bear.status==false){
           this.x+=5;
         }else{
@@ -113,7 +133,11 @@ window.onload = function(){
 	  this.x = game.width-32;
         }
       }
-      //if(game.input.left&&(bear.x>0)){bear.x-=4;}
+
+      //左キー
+      if(game.input.left&&(bear.x>0)&&bear.status==true){
+        bear.image = game.assets["image/skate_back.png"];
+      }
 
       //スペースキー
       if(game.input.a&&bear.status==false){
@@ -133,12 +157,31 @@ window.onload = function(){
       //ジャンプ中の判定
       if(this.status==true){
         this.jumping();
-
-        if(this.y==this.point_y){ 
-          this.F = 10; 
-          this.status =false;
+        if(bench.status==false){
+          if(this.y==this.point_y){ 
+            this.F = 10; 
+            this.status =false;
+          }
+        }else{
+          if(this.y==bench.y){
+            this.F = 10;
+            this.status = false;
+          }
         }     
       }
+      //ベンチとの衝突判定
+      if(bear.intersect(bench_top)){
+        bench.status = true;
+        if(bear.y<bench_top.y){
+          bear.y = bench_top.y-bear.height;
+        }else{
+          bear.x = bench_top.x-bear.width;   
+        }
+      }else{
+        bench.status = false;
+        //bear.y = game.height-40;
+      }
+      
     });
 
     //コウモリのフレームイベント
@@ -191,6 +234,16 @@ window.onload = function(){
       */
     });
 
+    //ベンチのフレームイベント
+    bench.addEventListener(Event.ENTER_FRAME,function(){
+      bench.x -= 2;
+    });
+
+    bench_top.addEventListener(Event.ENTER_FRAME,function(){
+      bench_top.x -= 2;
+    });
+    
+
     //マップのフレームイベント
     map1.addEventListener(Event.ENTER_FRAME, function(){
       map1.x -= 2;
@@ -203,8 +256,9 @@ window.onload = function(){
       if(map2.x<-639){map2.x = 640;} 
       BGM1.play();
     });
-    
-  }
 
+      
+  };
   game.start();
-}
+  
+};
