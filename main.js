@@ -1,6 +1,7 @@
 enchant();
 
 window.onload = function(){
+
   var game = new Game(320,240);
   game.fps = 30;
   game.preload("image/sky.png","image/sky2.png","image/skate.png","image/monster3.gif","image/icon0.png","image/effect0.png","image/ground.png",
@@ -9,14 +10,10 @@ window.onload = function(){
   game.keybind(32,"a");
   //得点
   game.score = 0;
-  
-  
   //敵の動きの向きフラグ
   var hidari = true;
   //暗転時にBGMをきりたいんです＞＜
   var onBGM = true;
-
-
 
   game.onload = function(){
 
@@ -33,12 +30,14 @@ window.onload = function(){
     map2.image = game.assets["image/sky.png"];
     map2.x = 640;
     game.rootScene.addChild(map2);
+    
     //地面
     var ground = new Sprite(320,30);
     ground.image = game.assets["image/ground.png"];    
     ground.x = 0;
     ground.y = game.height-30;
     game.rootScene.addChild(ground);
+    
     //クマ
     var bear = new Sprite(32,32);
     bear.image = game.assets["image/skate.png"];
@@ -56,25 +55,18 @@ window.onload = function(){
     bear.F = 10;
     //落ちるかどうか
     bear.fall = false;
-
     //ジャンプするメソッド
     bear.jump = function(){
       bear.status = true;
     }
-
-
     //ジャンプ中のメソッド
     bear.jumping = function(){
       bear.temp_y = bear.y;
       bear.y -= bear.prev_y-bear.temp_y+bear.F;
       bear.prev_y = bear.temp_y;
       bear.F = -1;
-      
     }
-
-
     game.rootScene.addChild(bear);
-
 
     //コウモリ
     var monster = new Sprite(48,48);
@@ -91,7 +83,6 @@ window.onload = function(){
     bom.y = monster.y + 48;
     bom.frame = 25;
     game.rootScene.addChild(bom);
-
 
     //爆発
     var bomb = new Sprite(16,16);
@@ -110,9 +101,7 @@ window.onload = function(){
       star.appear = 0;
       starGroup.addChild(star);
     }
-
     game.rootScene.addChild(starGroup);
-
 
     //ベンチ
     var bench = new Sprite(150,50);
@@ -138,23 +127,20 @@ window.onload = function(){
     gameOverScene.backgroundColor = 'black';
     */
 
+    /*ゲームパッド
+     *Aパッドが傾きとかとるから
+     *移動をAパッドにしたほうがいいかもね
+     */
+    var pad = new Pad();
+    pad.x = 0; 
+    pad.y = game.height-100;
+    game.rootScene.addChild(pad);
    
-   /*ゲームパッド
-   *Aパッドが傾きとかとるから
-   *移動をAパッドにしたほうがいいかもね
-   */
-   var pad = new Pad();
-   pad.x = 0; 
-   pad.y = game.height-100;
-   game.rootScene.addChild(pad);
-   
-
-   /*
-    *Aパッド
-    *傾きとかとれるらしい
-    */
-   //var apad = new APad();
-
+    /*
+     *Aパッド
+     *傾きとかとれるらしい
+     */
+    //var apad = new APad();
 
     //クマのフレームイベント
     bear.addEventListener(Event.ENTER_FRAME, function(){
@@ -162,9 +148,8 @@ window.onload = function(){
         this.x -=1;
       }
       //右キー
-      if(game.input.right&&(this.x<game.width-32)){
-
-        if(bear.status==false){
+      if(game.input.right && (this.x < game.width-32)){
+        if(bear.status == false){
           this.x+=3;
         }else{
           bear.image = game.assets["image/skate.png"];
@@ -172,13 +157,13 @@ window.onload = function(){
         }
         /* 
         if(this.x>game.width-32){
-        this.x = game.width-32;
+          this.x = game.width-32;
         }
         */
       }
 
       //左キー
-      if(game.input.left&&(bear.x>0)&&bear.status==true){
+      if(game.input.left && (bear.x>0) && bear.status==true){
         bear.image = game.assets["image/skate_back.png"];
       }
 
@@ -191,73 +176,72 @@ window.onload = function(){
       }
 
       //上キー
-      if(game.input.up&&(bear.y>game.height-55)&&this.status==false){this.y-=2;}
+      if(game.input.up && (bear.y>game.height-55) && this.status==false){
+        this.y-=2;
+      }
+        
       //下キー
-      if(game.input.down&&(bear.y<game.height-32&&this.status==false)){this.y+=2;}
+      if(game.input.down && (bear.y<game.height-32 && this.status==false)){
+        this.y+=2;
+      }
       
       //monster.frame = monster.age % 3 + 3
 
       //ジャンプ中の判定
-      if(this.status==true){
+      if(this.status == true){
         this.jumping();
         
-        if(this.y==this.point_y){ 
+        if(this.y == this.point_y){ 
           this.F = 10; 
-          this.status =false;
+          this.status = false;
         }
-            
       }
+        
       //ベンチとの衝突判定
       if(this.intersect(bench_top)){
-        
-       //クマがベンチより上にいてジャンプ中のとき
-       if(this.y<bench_top.y&&this.status===true){
-         this.y = bench_top.y-this.height;
-         this.point_y = bench.y;
-         this.F = 10; 
-         this.status = false;
-         //bench_top.status = true;
-       //クマがベンチより上にいてジャンプしてないとき
-       }else if(this.y<bench_top.y&&this.status===false){
-         //this.point_y = bench.y;
-         //this.F = 10; 
-         //this.status = false;
-       //クマがベンチより上にいてジャンプしてないときかつベンチの左側にいるとき
-       }else if(this.y<bench.y+bench.height&&this.x<bench.x&&this.status===false){
-        this.x = bench_top.x-this.width;
-       }
-     }else{
+        //クマがベンチより上にいてジャンプ中のとき
+        if(this.y<bench_top.y && this.status===true){
+          this.y = bench_top.y - this.height;
+          this.point_y = bench.y;
+          this.F = 10; 
+          this.status = false;
+          //bench_top.status = true;
+          //クマがベンチより上にいてジャンプしてないとき
+        }else if(this.y<bench_top.y && this.status===false){
+          //this.point_y = bench.y;
+          //this.F = 10; 
+          //this.status = false;
+          //クマがベンチより上にいてジャンプしてないときかつベンチの左側にいるとき
+        }else if(this.y<bench.y+bench.height && this.x<bench.x && this.status===false){
+          this.x = bench_top.x - this.width;
+        }
+      }else{
         //ベンチの上から降りた場合
-       if(bench_top.status&&this.status){
-         this.fall=true;
-         //bench_top.status = false;
-       }
+        if(bench_top.status && this.status){
+          this.fall=true;
+          //bench_top.status = false;
+        }
+      }
 
-     }
-     
+      //ベンチの上をすべっているor近づいたとき
+      if(this.x<bench.temp_x && this.x>bench.x-250 || bench_top.status){
+        this.x+=2;
+      }
 
-     //ベンチの上をすべっているor近づいたとき
-     if(this.x<bench.temp_x&&this.x>bench.x-250||bench_top.status){
-       this.x+=2;
-     }
+      //自然落下
+      if(this.fall){
+        this.y+=1;
+      }
 
-     //自然落下
-     if(this.fall){
-       this.y+=1;
-     }
+      //フレームの右端から向こうには行かせない
+      if(this.x>game.width-32){
+        this.x = game.width-32;
+      }
 
-     //フレームの右端から向こうには行かせない
-     if(this.x>game.width-32){
-       this.x = game.width-32;
-     }
-
-
-     //フレーム外に行くとゲームオーバー
-     if(this.x+32<0||this.y>game.height||this.y+32<0||this.x>game.width){
-       finishGame();
-     }
-
-
+      //フレーム外に行くとゲームオーバー
+      if(this.x+32<0 || this.y>game.height || this.y+32<0 || this.x>game.width){
+        finishGame();
+      }
     });
 
     //コウモリのフレームイベント
@@ -284,7 +268,7 @@ window.onload = function(){
         bomb.y = bom.y;
         game.rootScene.addChild(bomb);
         this.x = monster.x - 2;
-        this.y = monster.y+48;
+        this.y = monster.y + 48;
       }
     });
     
@@ -295,13 +279,7 @@ window.onload = function(){
       }
 
       if(bear.intersect(bomb)){
-        //game.pushScene(gameOverScene);
-        //game.stop();
-        BGM1.stop();
-        onBGM = false;
-        
-        BGM2.play();
-        game.end(game.score,"woeeee");
+        finishGame();
       }
     });
 
@@ -328,17 +306,21 @@ window.onload = function(){
     //マップのフレームイベント
     map1.addEventListener(Event.ENTER_FRAME, function(){
       map1.x -= 2;
-      if(map1.x<-639){map1.x = 640;}
+      if(map1.x<-639){
+        map1.x = 640;
+      }
       if(onBGM){
-      BGM1.play();
+        BGM1.play();
       }
     });
     
     map2.addEventListener(Event.ENTER_FRAME, function(){
       map2.x -=2;
-      if(map2.x<-639){map2.x = 640;}
+      if(map2.x<-639){
+        map2.x = 640;
+      }
       if(onBGM){
-      BGM1.play();
+        BGM1.play();
       }
     });
 
@@ -350,7 +332,7 @@ window.onload = function(){
       game.end(game.score,"woeeee");
     }
 
-  //game.onload
+    //game.onload
   };
 
 
