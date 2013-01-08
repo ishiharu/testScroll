@@ -163,7 +163,11 @@ window.onload = function(){
       }
 
       //左キー
+<<<<<<< HEAD
       if(game.input.left && (bear.x>0) && bear.status==true){
+=======
+      if(game.input.lef && (bear.x>0) && bear.status==true){
+>>>>>>> origin/master
         bear.image = game.assets["image/skate_back.png"];
       }
 
