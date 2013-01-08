@@ -222,7 +222,7 @@ window.onload = function(){
          //this.point_y = bench.y;
          //this.F = 10; 
          //this.status = false;
-         
+       //クマがベンチより上にいてジャンプしてないときかつベンチの左側にいるとき
        }else if(this.y<bench.y+bench.height&&this.x<bench.x&&this.status===false){
         this.x = bench_top.x-this.width;
        }
