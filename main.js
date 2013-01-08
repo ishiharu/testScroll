@@ -223,7 +223,7 @@ window.onload = function(){
          //this.F = 10; 
          //this.status = false;
          
-       }else{
+       }else if(this.y<bench.y+bench.height&&this.x<bench.x&&this.status===false){
         this.x = bench_top.x-this.width;
        }
      }else{
@@ -238,7 +238,7 @@ window.onload = function(){
 
      //ベンチの上をすべっているor近づいたとき
      if(this.x<bench.temp_x&&this.x>bench.x-250||bench_top.status){
-       this.x+=1;
+       this.x+=2;
      }
 
      //自然落下
