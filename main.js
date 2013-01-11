@@ -90,7 +90,6 @@ window.onload = function(){
     bomb.frame = [0,1,2,3,4];
     
     //星
-	/*
     var starGroup = new Group;
     for(var i = 0;i < 10;i++){
       var star = new Sprite(16,16);
@@ -103,13 +102,7 @@ window.onload = function(){
       starGroup.addChild(star);
     }
     game.rootScene.addChild(starGroup);
-    */
-	//星単体
-	var star = new Sprite(16,16);
-	star.image = game.assets["image/icon0.png"];
-	star.frame = 30;
-    //星のグループ
-    var stars = new Array();	
+
     //ベンチ
     var bench = new Sprite(150,50);
     bench.image = game.assets["image/bench.png"];
@@ -291,14 +284,13 @@ window.onload = function(){
     });
 
     //星のフレームイベント
-	/*
     starGroup.addEventListener(Event.ENTER_FRAME,function(){
       this.x -=2;
       if(star.intersect(bear)){
         game.score += 10;
       }
     });
-    */
+
     //ベンチのフレームイベント
     bench.addEventListener(Event.ENTER_FRAME,function(){
       bench.x -= 2;
@@ -331,20 +323,6 @@ window.onload = function(){
         BGM1.play();
       }
     });
-	
-	//ゲーム全体のフレームに関して
-	game.addEventListener(Event.ENTER_FRAME, function(){
-	  if(this.frame % 30 == 0){
-	    star.x = Math.floor(Math.random()*(640));
-        star.y = game.height-40 + parseInt(Math.random()*30);
-	    game.rootScene.addChild(star);
-	    stars.push(star);
-		star.addEventListener(Event.ENTER_FRAME, function(){
-		  star.x -= 0.1;
-		});
-	  }
-	  
-	});
 
     //ゲーム終了のおしらせ
     var finishGame = function(){
