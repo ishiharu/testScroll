@@ -88,7 +88,7 @@ window.onload = function(){
     var bomb = new Sprite(16,16);
     bomb.image = game.assets["image/effect0.png"];
     bomb.frame = [0,1,2,3,4];
-    
+    /*
     //星
     var starGroup = new Group;
     for(var i = 0;i < 10;i++){
@@ -102,7 +102,16 @@ window.onload = function(){
       starGroup.addChild(star);
     }
     game.rootScene.addChild(starGroup);
-
+    */
+	//星単体
+	
+	var star = new Sprite(16,16);
+    star.image = game.assets["image/icon0.png"];
+    star.frame = 30;
+	
+	//星のグループ
+	var starGroup = new Array();
+	
     //ベンチ
     var bench = new Sprite(150,50);
     bench.image = game.assets["image/bench.png"];
@@ -282,7 +291,8 @@ window.onload = function(){
         finishGame();
       }
     });
-
+	
+    /*
     //星のフレームイベント
     starGroup.addEventListener(Event.ENTER_FRAME,function(){
       this.x -=2;
@@ -290,7 +300,8 @@ window.onload = function(){
         game.score += 10;
       }
     });
-
+    */
+	
     //ベンチのフレームイベント
     bench.addEventListener(Event.ENTER_FRAME,function(){
       bench.x -= 2;
@@ -323,6 +334,22 @@ window.onload = function(){
         BGM1.play();
       }
     });
+	
+	game.addEventListener(Event.ENTER_FRAME, function(){
+	  if(this.frame % 30 == 0){
+	    /*
+	    var star = new Sprite(16,16);
+        star.image = game.assets["image/icon0.png"];
+        star.frame = 30;
+		*/
+	    star.x = Math.floor(Math.random()*(640));
+        star.y = game.height-40 + parseInt(Math.random()*30);
+		game.rootScene.addChild(star);
+		starGroup.push(star);
+	  }
+	  star.x -= 1;
+	});
+	
 
     //ゲーム終了のおしらせ
     var finishGame = function(){
