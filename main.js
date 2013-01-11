@@ -4,9 +4,9 @@ window.onload = function() {
 	
 	var game = new Game(320, 240);
 	game.fps = 30;
-	game.preload("image/sky.png", "image/sky2.png", "image/skate.png",
-			"image/monster3.gif", "image/icon0.png", "image/effect0.png",
-			"image/ground.png", "image/bench.png", "image/skate_back.png");
+	game.preload("image/sky.png", "image/sky2.png", "image/skate.png", "image/monster3.gif",
+			"image/icon0.png", "image/effect0.png", "image/ground.png", "image/bench.png",
+			"image/skate_back.png");
 	// スペースキーをAボタンに登録
 	game.keybind(32, "a");
 	// 得点
@@ -89,20 +89,20 @@ window.onload = function() {
 		var bomb = new Sprite(16, 16);
 		bomb.image = game.assets["image/effect0.png"];
 		bomb.frame = [0, 1, 2, 3, 4];
+		/*
+		 * //星 var starGroup = new Group; for(var i = 0;i < 10;i++){ var star = new Sprite(16,16);
+		 * star.image = game.assets["image/icon0.png"]; star.frame = 30; star.x =
+		 * Math.floor(Math.random()*(640)); star.y = game.height-40 + parseInt(Math.random()*30);
+		 * //star.y = 0; star.appear = 0; starGroup.addChild(star); }
+		 * game.rootScene.addChild(starGroup);
+		 */
+		// 星単体
+		var star = new Sprite(16, 16);
+		star.image = game.assets["image/icon0.png"];
+		star.frame = 30;
 		
-		// 星
-		var starGroup = new Group;
-		for ( var i = 0; i < 10; i++) {
-			var star = new Sprite(16, 16);
-			star.image = game.assets["image/icon0.png"];
-			star.frame = 30;
-			star.x = Math.floor(Math.random() * (640));
-			star.y = game.height - 40 + parseInt(Math.random() * 30);
-			// star.y = 0;
-			star.appear = 0;
-			starGroup.addChild(star);
-		}
-		game.rootScene.addChild(starGroup);
+		// 星のグループ
+		var starGroup = new Array();
 		
 		// ベンチ
 		var bench = new Sprite(150, 50);
@@ -138,7 +138,6 @@ window.onload = function() {
 		 * Aパッド 傾きとかとれるらしい
 		 */
 		// var apad = new APad();
-		
 		// クマのフレームイベント
 		bear.addEventListener(Event.ENTER_FRAME, function() {
 			if (this.x > 0) {
@@ -171,14 +170,12 @@ window.onload = function() {
 			}
 			
 			// 上キー
-			if (game.input.up && (bear.y > game.height - 55)
-					&& this.status == false) {
+			if (game.input.up && (bear.y > game.height - 55) && this.status == false) {
 				this.y -= 2;
 			}
 			
 			// 下キー
-			if (game.input.down
-					&& (bear.y < game.height - 32 && this.status == false)) {
+			if (game.input.down && (bear.y < game.height - 32 && this.status == false)) {
 				this.y += 2;
 			}
 			
@@ -222,8 +219,7 @@ window.onload = function() {
 			}
 			
 			// ベンチの上をすべっているor近づいたとき
-			if (this.x < bench.temp_x && this.x > bench.x - 250
-					|| bench_top.status) {
+			if (this.x < bench.temp_x && this.x > bench.x - 250 || bench_top.status) {
 				this.x += 2;
 			}
 			
@@ -238,8 +234,7 @@ window.onload = function() {
 			}
 			
 			// フレーム外に行くとゲームオーバー
-			if (this.x + 32 < 0 || this.y > game.height || this.y + 32 < 0
-					|| this.x > game.width) {
+			if (this.x + 32 < 0 || this.y > game.height || this.y + 32 < 0 || this.x > game.width) {
 				finishGame();
 			}
 		});
@@ -283,14 +278,11 @@ window.onload = function() {
 			}
 		});
 		
-		// 星のフレームイベント
-		starGroup.addEventListener(Event.ENTER_FRAME, function() {
-			this.x -= 2;
-			if (star.intersect(bear)) {
-				game.score += 10;
-			}
-		});
-		
+		/*
+		 * //星のフレームイベント starGroup.addEventListener(Event.ENTER_FRAME,function(){ this.x -=2;
+		 * if(star.intersect(bear)){ game.score += 10; } });
+		 */
+
 		// ベンチのフレームイベント
 		bench.addEventListener(Event.ENTER_FRAME, function() {
 			bench.x -= 2;
@@ -323,6 +315,20 @@ window.onload = function() {
 			}
 		});
 		
+		game.addEventListener(Event.ENTER_FRAME, function() {
+			if (this.frame % 30 == 0) {
+				/*
+				 * var star = new Sprite(16,16); star.image = game.assets["image/icon0.png"];
+				 * star.frame = 30;
+				 */
+				star.x = Math.floor(Math.random() * (640));
+				star.y = game.height - 40 + parseInt(Math.random() * 30);
+				game.rootScene.addChild(star);
+				starGroup.push(star);
+			}
+			star.x -= 1;
+		});
+		
 		// ゲーム終了のおしらせ
 		var finishGame = function() {
 			BGM1.stop();
@@ -334,56 +340,55 @@ window.onload = function() {
 		// game.onload
 	};
 	
-//	// まだ実装できてましぇん。
-//	  // 時間経過を表示するクラス。shi3z氏のを借用。
-//	  TimeAttack =enchant.Class.create({
-//	    initialize:function(){
-//	        // 時間ラベル設定
-//	        this.timeLabel = new Label("TIME:180.00");
-//	        game.rootScene.addChild(this.timeLabel);
-//	        this.timeLabel.x = 10;
-//	        this.timeLabel.color="#ffffff";
-//	        this.timeLabel.font="bold";
-//	        this.timeLabel.y =10;
-//	        this.timeStart=new Date;// 初期時間を設定
-//	        this.timeInit=false;
-//	        this.timerID =window.setInterval(this.interval, 320 ,this);
-//	    },
-//	    interval:function(obj){
-//	            if(gameStart){
-//	                if(!obj.timeInit){
-//	                    obj.timeStart=new Date;// 初期時間を設定
-//	                    obj.timeInit=true;
-//	                }
-//	                var timeLeft =((new Date)-obj.timeStart)/1000;
-//	                obj.timeLabel.text="TIME:"+obj.get2string(180-timeLeft);;
-//	            }
-//	    },
-//	    get2string:function (x){ // 小数点以下2桁までで表示をカット
-//	        n = new String(x);
-//	        if(n.indexOf(".")&gt;0)
-//	            n = n.split(".")[0]+"."+(n.split(".")[1]+"00").substring(0,2);
-//	        else
-//	            n = n+".00";
-//	        
-//	        return n;
-//	    },
-//	    gameend:function(x){ // ゲーム終了
-//	        window.clearInterval(this.timerID);
-//	        var timeLeft =((new Date)-this.timeStart)/1000;
-//	        this.timeLabel.text="TIME:"+this.get2string(180-timeLeft);
-//	        var indi =180 - timeLeft;
-//	        if(indi&lt;0)indi=0;
-//	        var ResultLabel =new Label("タイム:"+this.get2string(timeLeft)+x);
-//	        ResultLabel.x=80;
-//	        ResultLabel.y=220;
-//	        ResultLabel.color="#ffffff";
-//	        ResultLabel.font="bold";
-//	        game.rootScene.addChild(ResultLabel);
-//	        game.end(indi, "タイム:"+this.get2string(timeLeft)+x); // nineleap.enchant.jsを呼び出し
-//	    }
-//	  });
-	  
-
+	// //まだ実装できてましぇん。
+	// //時間経過を表示するクラス。shi3z氏のを借用。
+	// TimeAttack =enchant.Class.create({
+	// initialize:function(){
+	// //時間ラベル設定
+	// this.timeLabel = new Label("TIME:180.00");
+	// game.rootScene.addChild(this.timeLabel);
+	// this.timeLabel.x = 10;
+	// this.timeLabel.color="#ffffff";
+	// this.timeLabel.font="bold";
+	// this.timeLabel.y =10;
+	// this.timeStart=new Date;//初期時間を設定
+	// this.timeInit=false;
+	// this.timerID =window.setInterval(this.interval, 320 ,this);
+	// },
+	// interval:function(obj){
+	// if(gameStart){
+	// if(!obj.timeInit){
+	// obj.timeStart=new Date;//初期時間を設定
+	// obj.timeInit=true;
+	// }
+	// var timeLeft =((new Date)-obj.timeStart)/1000;
+	// obj.timeLabel.text="TIME:"+obj.get2string(180-timeLeft);;
+	// }
+	// },
+	// get2string:function (x){ //小数点以下2桁までで表示をカット
+	// n = new String(x);
+	// if(n.indexOf(".")&gt;0)
+	// n = n.split(".")[0]+"."+(n.split(".")[1]+"00").substring(0,2);
+	// else
+	// n = n+".00";
+	//        
+	// return n;
+	// },
+	// gameend:function(x){ //ゲーム終了
+	// window.clearInterval(this.timerID);
+	// var timeLeft =((new Date)-this.timeStart)/1000;
+	// this.timeLabel.text="TIME:"+this.get2string(180-timeLeft);
+	// var indi =180 - timeLeft;
+	// if(indi&lt;0)indi=0;
+	// var ResultLabel =new Label("タイム:"+this.get2string(timeLeft)+x);
+	// ResultLabel.x=80;
+	// ResultLabel.y=220;
+	// ResultLabel.color="#ffffff";
+	// ResultLabel.font="bold";
+	// game.rootScene.addChild(ResultLabel);
+	// game.end(indi, "タイム:"+this.get2string(timeLeft)+x); //nineleap.enchant.jsを呼び出し
+	// }
+	// });
+	
 	game.start();
 };
