@@ -17,7 +17,6 @@ window.onload = function() {
 	var onBGM = true;
 	
 	game.onload = function() {
-		
 		// タイムアタックを初期化
 		// timeAttack = new TimeAttack();
 		
@@ -138,6 +137,10 @@ window.onload = function() {
 		 * Aパッド 傾きとかとれるらしい
 		 */
 		// var apad = new APad();
+		var label = new Label();
+		label.text = "screen.width " + screen.width + "<br />" + "screen.height " + screen.height;
+		game.rootScene.addChild(label);
+		
 		// クマのフレームイベント
 		bear.addEventListener(Event.ENTER_FRAME, function() {
 			if (this.x > 0) {
