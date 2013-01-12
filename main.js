@@ -1,7 +1,7 @@
 enchant();
 
 window.onload = function() {
-	
+    
 	var game = new Game(320, 240);
 	game.fps = 30;
 	game.preload("image/sky.png", "image/sky2.png", "image/skate.png", "image/monster3.gif",
@@ -32,12 +32,19 @@ window.onload = function() {
 		game.rootScene.addChild(map2);
 		
 		// 地面
-		var ground = new Sprite(320, 30);
-		ground.image = game.assets["image/ground.png"];
-		ground.x = 0;
-		ground.y = game.height - 30;
-		game.rootScene.addChild(ground);
-		
+		var ground1 = new Sprite(game.width, 30);
+		ground1.image = game.assets["image/ground.png"];
+		ground1.x = 0;
+		ground1.y = game.height - 30;
+		game.rootScene.addChild(ground1);
+        
+        // 地面２
+        var ground2 = new Sprite(game.width, 30);
+		ground2.image = game.assets["image/ground.png"];
+		ground2.x = game.width;
+		ground2.y = game.height - 30;
+		game.rootScene.addChild(ground2);
+        
 		// クマ
 		var bear = new Sprite(32, 32);
 		bear.image = game.assets["image/skate.png"];
@@ -71,7 +78,7 @@ window.onload = function() {
 		// コウモリ
 		var monster = new Sprite(48, 48);
 		monster.image = game.assets["image/monster3.gif"];
-		monster.x = Math.floor(Math.random() * (320 - 48));
+		monster.x = Math.floor(Math.random() * (game.width - 48));
 		monster.y = 0;
 		monster.frame = [2, 3, 4, 3];
 		game.rootScene.addChild(monster);
@@ -88,6 +95,7 @@ window.onload = function() {
 		var bomb = new Sprite(16, 16);
 		bomb.image = game.assets["image/effect0.png"];
 		bomb.frame = [0, 1, 2, 3, 4];
+        
 		/*
 		 * //星 var starGroup = new Group; for(var i = 0;i < 10;i++){ var star = new Sprite(16,16);
 		 * star.image = game.assets["image/icon0.png"]; star.frame = 30; star.x =
@@ -95,6 +103,7 @@ window.onload = function() {
 		 * //star.y = 0; star.appear = 0; starGroup.addChild(star); }
 		 * game.rootScene.addChild(starGroup);
 		 */
+         
 		// 星単体
 		var star = new Sprite(16, 16);
 		star.image = game.assets["image/icon0.png"];
@@ -137,6 +146,8 @@ window.onload = function() {
 		 * Aパッド 傾きとかとれるらしい
 		 */
 		// var apad = new APad();
+        
+        //textの表示してみただけ
 		var label = new Label();
 		label.text = "screen.width " + screen.width + "<br />" + "screen.height " + screen.height;
 		game.rootScene.addChild(label);
@@ -317,8 +328,16 @@ window.onload = function() {
 				BGM1.play();
 			}
 		});
-		
+        
 		game.addEventListener(Event.ENTER_FRAME, function() {
+            ground1.x -=2;
+            ground2.x -=2;
+            if (ground1.x <= -ground1.width) {
+                ground1.x = ground1.width;
+            }
+            if (ground2.x <= -ground2.width) {
+                ground2.x = ground2.width;
+            }
 			if (this.frame % 30 == 0) {
 				/*
 				 * var star = new Sprite(16,16); star.image = game.assets["image/icon0.png"];
@@ -331,7 +350,7 @@ window.onload = function() {
 			}
 			star.x -= 1;
 		});
-		
+        
 		// ゲーム終了のおしらせ
 		var finishGame = function() {
 			BGM1.stop();
