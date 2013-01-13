@@ -4,9 +4,9 @@ window.onload = function() {
     
 	var game = new Game(320, 240);
 	game.fps = 30;
-	game.preload("image/sky.png", "image/sky2.png", "image/skate.png", "image/monster3.gif",
-			"image/icon0.png", "image/effect0.png", "image/ground.png", "image/bench.png",
-			"image/skate_back.png");
+	game.preload("image/sky_half.png", "image/skate.png",
+            "image/monster3.gif", "image/icon0.png", "image/effect0.png", "image/ground.png",
+            "image/bench.png", "image/skate_back.png");
 	// スペースキーをAボタンに登録
 	game.keybind(32, "a");
 	// 得点
@@ -16,40 +16,55 @@ window.onload = function() {
 	// 暗転時にBGMをきりたいんです＞＜
 	var onBGM = true;
 	
+    scrollSpeed = -2;// スクロールしていくスピード
+    
 	game.onload = function() {
 		// タイムアタックを初期化
 		// timeAttack = new TimeAttack();
 		
-		// マップ
-		var map1 = new Sprite(640, 240);
-		map1.image = game.assets["image/sky2.png"];
-		map1.x = 0;
-		game.rootScene.addChild(map1);
-		// マップ2つ目
-		var map2 = new Sprite(640, 240);
-		map2.image = game.assets["image/sky.png"];
-		map2.x = 640;
-		game.rootScene.addChild(map2);
-		
-		// 地面
-		var ground1 = new Sprite(game.width, 30);
-		ground1.image = game.assets["image/ground.png"];
-		ground1.x = 0;
-		ground1.y = game.height - 30;
-		game.rootScene.addChild(ground1);
+        //背景
+        var backG = new Array(2);
+        for (var i = 0; i < backG.length; i ++) {
+            backG[i] = new Sprite(game.width, game.height);
+            backG[i].image = game.assets["image/sky_half.png"];
+            game.rootScene.addChild(backG[i]);
+        }
+        backG[1].scaleX *= -1;
+		backG[1].x = backG[0].width;
         
-        // 地面２
-        var ground2 = new Sprite(game.width, 30);
-		ground2.image = game.assets["image/ground.png"];
-		ground2.x = game.width;
-		ground2.y = game.height - 30;
-		game.rootScene.addChild(ground2);
+        // 地面
+		var ground = new Array(2);
+        for (var j = 0; j < ground.length; j ++) {
+            ground[j] = new Sprite(game.width, 30);
+            ground[j].image = game.assets["image/ground.png"];
+            ground[j].y = game.height - ground[j].height;
+            game.rootScene.addChild(ground[j]);
+        }
+		ground[1].x = ground[0].width;
+        
+        // ベンチ
+        var bench = new Sprite(150, 50);
+		bench.image = game.assets["image/bench.png"];
+		bench.x = game.width * 2;
+		bench.y = game.height - 70;
+		bench.temp_x = 0;
+		bench.status = false;
+		game.rootScene.addChild(bench);
+		// ベンチの上
+		var bench_top = new Sprite(150, 20);
+		bench_top.x = game.width * 2;
+		bench_top.y = game.height - 70;
+		bench_top.status = false;
+		game.rootScene.addChild(bench_top);
         
 		// クマ
 		var bear = new Sprite(32, 32);
 		bear.image = game.assets["image/skate.png"];
 		bear.x = 0;
-		bear.y = game.height - 32;
+		bear.y = game.height - bear.height;
+        bear.z = bear.y + bear.height;// 地べたに接する点≒Z軸
+        bear.depth = 1;//奥行きの幅
+        bear.speed = 2;// 移動力
 		// クマのジャンプの状態
 		bear.status = false;
 		// ジャンプ地点
@@ -90,11 +105,33 @@ window.onload = function() {
 		bom.y = monster.y + 48;
 		bom.frame = 25;
 		game.rootScene.addChild(bom);
-		
+		// 爆弾のフレームイベント
+        bom.addEventListener(Event.ENTER_FRAME, function() {
+			this.y += 2;
+			if (this.y == 214) {
+				bomb.x = bom.x;
+				bomb.y = bom.y;
+				game.rootScene.addChild(bomb);
+				this.x = monster.x - 2;
+				this.y = monster.y + 48;
+			}
+		});
+        
 		// 爆発
 		var bomb = new Sprite(16, 16);
 		bomb.image = game.assets["image/effect0.png"];
 		bomb.frame = [0, 1, 2, 3, 4];
+        //爆破
+        bomb.addEventListener(Event.ENTER_FRAME, function() {
+			if (this.frame == 4) {
+				game.rootScene.removeChild(bomb)
+			}
+			
+			if (bear.intersect(bomb)) {
+				finishGame();
+			}
+		});
+        
         
 		/*
 		 * //星 var starGroup = new Group; for(var i = 0;i < 10;i++){ var star = new Sprite(16,16);
@@ -112,20 +149,6 @@ window.onload = function() {
 		// 星のグループ
 		var starGroup = new Array();
 		
-		// ベンチ
-		var bench = new Sprite(150, 50);
-		bench.image = game.assets["image/bench.png"];
-		bench.x = game.width * 2;
-		bench.y = game.height - 70;
-		bench.temp_x = 0;
-		bench.status = false;
-		game.rootScene.addChild(bench);
-		// ベンチの上
-		var bench_top = new Sprite(150, 20);
-		bench_top.x = game.width * 2;
-		bench_top.y = game.height - 70;
-		bench_top.status = false;
-		game.rootScene.addChild(bench_top);
 		
 		// サウンドを読み込み
 		var BGM1 = Sound.load("sound/shell_the_enemy.mp3");
@@ -149,7 +172,7 @@ window.onload = function() {
         
         //textの表示してみただけ
 		var label = new Label();
-		label.text = "screen.width " + screen.width + "<br />" + "screen.height " + screen.height;
+		//label.text = "screen.width " + screen.width + "<br />" + "screen.height " + screen.height;
 		game.rootScene.addChild(label);
 		
 		// クマのフレームイベント
@@ -185,12 +208,14 @@ window.onload = function() {
 			
 			// 上キー
 			if (game.input.up && (bear.y > game.height - 55) && this.status == false) {
-				this.y -= 2;
+				this.y -= this.speed;
+                this.z -= this.speed;
 			}
 			
 			// 下キー
 			if (game.input.down && (bear.y < game.height - 32 && this.status == false)) {
-				this.y += 2;
+				this.y += this.speed;
+                this.z += this.speed;
 			}
 			
 			// monster.frame = monster.age % 3 + 3
@@ -269,29 +294,6 @@ window.onload = function() {
 			
 		});
 		
-		// 爆弾のフレームイベント
-		bom.addEventListener(Event.ENTER_FRAME, function() {
-			this.y += 2;
-			if (this.y == 214) {
-				bomb.x = bom.x;
-				bomb.y = bom.y;
-				game.rootScene.addChild(bomb);
-				this.x = monster.x - 2;
-				this.y = monster.y + 48;
-			}
-		});
-		
-		// ／^o^＼＜ﾌｯｼﾞｻｰﾝ
-		bomb.addEventListener(Event.ENTER_FRAME, function() {
-			if (this.frame == 4) {
-				game.rootScene.removeChild(bomb)
-			}
-			
-			if (bear.intersect(bomb)) {
-				finishGame();
-			}
-		});
-		
 		/*
 		 * //星のフレームイベント starGroup.addEventListener(Event.ENTER_FRAME,function(){ this.x -=2;
 		 * if(star.intersect(bear)){ game.score += 10; } });
@@ -299,45 +301,39 @@ window.onload = function() {
 
 		// ベンチのフレームイベント
 		bench.addEventListener(Event.ENTER_FRAME, function() {
-			bench.x -= 2;
+			bench.x += scrollSpeed;
 			// bench.temp_x = bench.x+bench.width;
 			bench.temp_x = bench.x + 150;
 		});
 		
 		bench_top.addEventListener(Event.ENTER_FRAME, function() {
-			bench_top.x -= 2;
+			bench_top.x += scrollSpeed;
 		});
 		
-		// マップのフレームイベント
-		map1.addEventListener(Event.ENTER_FRAME, function() {
-			map1.x -= 2;
-			if (map1.x < -639) {
-				map1.x = 640;
-			}
-			if (onBGM) {
-				BGM1.play();
-			}
-		});
-		
-		map2.addEventListener(Event.ENTER_FRAME, function() {
-			map2.x -= 2;
-			if (map2.x < -639) {
-				map2.x = 640;
-			}
-			if (onBGM) {
-				BGM1.play();
-			}
-		});
-        
+        //ゲーム全体？のフレームイベント
 		game.addEventListener(Event.ENTER_FRAME, function() {
-            ground1.x -=2;
-            ground2.x -=2;
-            if (ground1.x <= -ground1.width) {
-                ground1.x = ground1.width;
+            //鳴ってなかったらBGM鳴らします？
+            if (onBGM) {
+    			BGM1.play();
+			}
+            
+            //画面のスクロール
+            for (var i = 0; i < backG.length; i ++) {
+                backG[i].x += scrollSpeed;
+                if (backG[i].x <= -backG[i].width) {
+                    backG[i].x = backG[i].width;
+                }
             }
-            if (ground2.x <= -ground2.width) {
-                ground2.x = ground2.width;
+            for (var j = 0; j < ground.length; j ++) {
+                ground[j].x += scrollSpeed;
+                if (ground[j].x <= -ground[j].width) {
+                    ground[j].x = ground[j].width;
+                }
             }
+            
+            //経過フレームと秒を出して見ました。
+            label.text = "frame:" + this.frame + ",second:" + (Math.floor(this.frame/game.fps*10))/10;
+            
 			if (this.frame % 30 == 0) {
 				/*
 				 * var star = new Sprite(16,16); star.image = game.assets["image/icon0.png"];
